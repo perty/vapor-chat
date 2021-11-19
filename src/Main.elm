@@ -16,11 +16,13 @@ type Msg
     = UrlRequest Browser.UrlRequest
     | UrlChanged Url.Url
     | JoinCall
-    | Joined String
+    | JoinedEvent String
+    | ConnectedEvent String
 
 
 type CallState
     = NoCall
+    | Connected String
     | Joining
     | JoinedCall String
     | Leaving
@@ -41,7 +43,8 @@ main =
         , subscriptions =
             \_ ->
                 Sub.batch
-                    [ Ports.joined Joined
+                    [ Ports.joined JoinedEvent
+                    , Ports.connected ConnectedEvent
                     ]
         , onUrlRequest = UrlRequest
         , onUrlChange = UrlChanged
@@ -74,8 +77,11 @@ update msg model =
         JoinCall ->
             ( { model | callState = Joining }, Ports.join "room" )
 
-        Joined call ->
+        JoinedEvent call ->
             ( { model | callState = JoinedCall call }, Cmd.none )
+
+        ConnectedEvent id ->
+            ( { model | callState = Connected id }, Cmd.none )
 
 
 view : Model -> Browser.Document Msg
@@ -91,6 +97,24 @@ viewChat model =
         [ row []
             [ text "Hello "
             , text <| Url.toString model.url
+            ]
+        , row []
+            [ text <|
+                case model.callState of
+                    NoCall ->
+                        "Not in a call"
+
+                    Connected id ->
+                        "Connected with id " ++ id
+
+                    Joining ->
+                        "Joining a call"
+
+                    JoinedCall call ->
+                        "Joined call " ++ call
+
+                    Leaving ->
+                        "Leaving the call."
             ]
         , Input.button actionButtonStyle
             { onPress = Just JoinCall

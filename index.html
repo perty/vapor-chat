@@ -3,6 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"
+            integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj"
+            crossorigin="anonymous"></script>
     <script type="text/javascript" src="elm.js"></script>
     <title></title>
 </head>
@@ -13,6 +16,8 @@
     const storedState = localStorage.getItem('vaporSession');
     const startingState = storedState ? JSON.parse(storedState) : "";
 
+    let socket = io("https://signal-server-4711.herokuapp.com/");
+
     const elmApp = Elm.Main.init({
         node: document.getElementById('elm'),
         flags: startingState
@@ -20,7 +25,17 @@
 
     elmApp.ports.join.subscribe(function (call) {
         console.log("Joining call ", call);
+        socket.connect();
     });
+
+    socket.on("connect", () => {
+        console.log("Connected with socket id ", socket.id);
+        connected(socket.id);
+    });
+
+    function connected(id) {
+        elmApp.ports.connected.send(id);
+    }
 
     function joined( call) {
         elmApp.ports.joined.send(call);
