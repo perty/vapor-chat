@@ -17,6 +17,15 @@
         node: document.getElementById('elm'),
         flags: startingState
     });
+
+    elmApp.ports.join.subscribe(function (call) {
+        console.log("Joining call ", call);
+    });
+
+    function joined( call) {
+        elmApp.ports.joined.send(call);
+    }
+
 </script>
 
 </body>
