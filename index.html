@@ -28,19 +28,32 @@
         socket.connect();
     });
 
+    elmApp.ports.disconnect.subscribe(function () {
+        console.log("Disconnecting");
+        socket.disconnect();
+    });
+
     socket.on("connect", () => {
         console.log("Connected with socket id ", socket.id);
         connected(socket.id);
+    });
+
+    socket.on("disconnect", () => {
+        disconnected();
     });
 
     function connected(id) {
         elmApp.ports.connected.send(id);
     }
 
-    function joined( call) {
+    function joined(call) {
         elmApp.ports.joined.send(call);
     }
 
+    function disconnected() {
+        console.log("Disconnected");
+        elmApp.ports.disconnected.send("xx");
+    }
 </script>
 
 </body>

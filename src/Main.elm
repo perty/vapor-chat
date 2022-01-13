@@ -16,8 +16,10 @@ type Msg
     = UrlRequest Browser.UrlRequest
     | UrlChanged Url.Url
     | JoinCall
+    | PressedDisconnect
     | JoinedEvent String
     | ConnectedEvent String
+    | DisconnectedEvent String
 
 
 type CallState
@@ -45,6 +47,7 @@ main =
                 Sub.batch
                     [ Ports.joined JoinedEvent
                     , Ports.connected ConnectedEvent
+                    , Ports.disconnected DisconnectedEvent
                     ]
         , onUrlRequest = UrlRequest
         , onUrlChange = UrlChanged
@@ -83,6 +86,12 @@ update msg model =
         ConnectedEvent id ->
             ( { model | callState = Connected id }, Cmd.none )
 
+        DisconnectedEvent _ ->
+            ( { model | callState = NoCall }, Cmd.none )
+
+        PressedDisconnect ->
+            ( model, Ports.disconnect () )
+
 
 view : Model -> Browser.Document Msg
 view model =
@@ -105,7 +114,7 @@ viewChat model =
                         "Not in a call"
 
                     Connected id ->
-                        "Connected with id " ++ id
+                        "Connected with socket id " ++ id
 
                     Joining ->
                         "Joining a call"
@@ -120,6 +129,14 @@ viewChat model =
             { onPress = Just JoinCall
             , label = text <| "Join call"
             }
+        , if model.callState /= NoCall then
+            Input.button actionButtonStyle
+                { onPress = Just PressedDisconnect
+                , label = text <| "Disconnect"
+                }
+
+          else
+            Element.none
         , viewSelfVideo
         , viewPeerVideo
         ]
