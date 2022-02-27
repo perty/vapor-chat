@@ -78,7 +78,12 @@ update msg model =
             ( model, Cmd.none )
 
         JoinCall ->
-            ( { model | callState = Joining }, Cmd.batch [ Ports.join "room", Ports.selfVideoOn "self" ] )
+            ( { model | callState = Joining }
+            , Cmd.batch
+                [ Ports.join "c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd"
+                , Ports.selfVideoOn "self"
+                ]
+            )
 
         JoinedEvent call ->
             ( { model | callState = JoinedCall call }, Cmd.none )

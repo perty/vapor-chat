@@ -29,7 +29,8 @@
 
     elmApp.ports.join.subscribe(function (call) {
         console.log("Joining call ", call);
-        socket.connect();
+        socket.connect("/" + call);
+        socket.open();
     });
 
     elmApp.ports.disconnect.subscribe(function () {
