@@ -23,6 +23,10 @@
         flags: startingState
     });
 
+    elmApp.ports.selfVideoOn.subscribe(function (id) {
+        requestUserMedia(id);
+    });
+
     elmApp.ports.join.subscribe(function (call) {
         console.log("Joining call ", call);
         socket.connect();
@@ -53,6 +57,19 @@
     function disconnected() {
         console.log("Disconnected");
         elmApp.ports.disconnected.send("xx");
+    }
+
+    const media_constraints = { audio: false, video: true }
+
+    async function requestUserMedia(id) {
+        const media = await navigator.mediaDevices.getUserMedia(media_constraints);
+        const stream = new MediaStream();
+        stream.addTrack(media.getTracks()[0]);
+        displayStream(id, stream);
+    }
+
+    function displayStream(video_id, stream) {
+        document.querySelector("#" + video_id).srcObject = stream;
     }
 </script>
 

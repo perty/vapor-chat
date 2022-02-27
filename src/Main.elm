@@ -78,7 +78,7 @@ update msg model =
             ( model, Cmd.none )
 
         JoinCall ->
-            ( { model | callState = Joining }, Ports.join "room" )
+            ( { model | callState = Joining }, Cmd.batch [ Ports.join "room", Ports.selfVideoOn "self" ] )
 
         JoinedEvent call ->
             ( { model | callState = JoinedCall call }, Cmd.none )
@@ -144,25 +144,32 @@ viewChat model =
 
 viewSelfVideo : Element.Element msg
 viewSelfVideo =
-    Element.html <|
-        Html.video
-            [ autoplay True
-            , Html.Attributes.attribute "muted" "true"
-            , playsInline
-            , poster "img/placeholder.png"
-            ]
-            []
+    column [ Border.width 1 ]
+        [ Element.html <|
+            Html.video
+                [ Html.Attributes.id "self"
+                , autoplay True
+                , Html.Attributes.attribute "muted" "true"
+                , playsInline
+                , poster "img/placeholder.png"
+                , Html.Attributes.style "max-width" "320px"
+                ]
+                []
+        ]
 
 
 viewPeerVideo : Element.Element msg
 viewPeerVideo =
-    Element.html <|
-        Html.video
-            [ autoplay True
-            , playsInline
-            , poster "img/placeholder.png"
-            ]
-            []
+    column [ Border.width 1 ]
+        [ Element.html <|
+            Html.video
+                [ autoplay True
+                , playsInline
+                , poster "img/placeholder.png"
+                , Html.Attributes.style "max-width" "320px"
+                ]
+                []
+        ]
 
 
 playsInline : Html.Attribute msg
